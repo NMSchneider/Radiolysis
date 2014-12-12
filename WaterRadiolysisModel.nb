@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       157,          7]
-NotebookDataLength[     66485,       1767]
-NotebookOptionsPosition[     65058,       1714]
-NotebookOutlinePosition[     65412,       1730]
-CellTagsIndexPosition[     65369,       1727]
+NotebookDataLength[     66801,       1769]
+NotebookOptionsPosition[     65411,       1717]
+NotebookOutlinePosition[     65768,       1733]
+CellTagsIndexPosition[     65725,       1730]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -60,17 +60,23 @@ Cell[TextData[{
 Model outlined in Schneider ",
  StyleBox["et. al.",
   FontSlant->"Italic"],
- " [1]. Please see the paper for details.\n\n",
- "Contact:\nEmail: Schneider.NicholasM@gmail.com\nWebsite: \
+ " [1]. Please see the paper for details: ",
+ "http://pubs.acs.org/doi/abs/10.1021/jp507400n",
+ "\n\nContact:\nEmail: Schneider.NicholasM@gmail.com\nWebsite: \
 http://NMSchneider.com\nYouTube Channel: \
 https://www.youtube.com/user/NicholasMSchneider\nTwitter: \
 https://twitter.com/NMSchneider \nFacebook: \
 http://facebook.com/Schneider.NicholasM\nLinkedIn: \
 http://www.linkedin.com/in/nmschneider/\nGoogle+: \
-https://plus.google.com/+NicholasSchneiderPennRIT/"
+https://plus.google.com/+NicholasSchneiderPennRIT/\n\n[1]\tN. M. Schneider, \
+M. M. Norton, B. J. Mendel, J. M. Grogan, F. M. Ross, and H. H. Bau, \
+\[OpenCurlyDoubleQuote]Electron\[Dash]Water Interactions and Implications for \
+Liquid Cell Electron Microscopy,\[CloseCurlyDoubleQuote] J. Phys. Chem. C, \
+vol. 118, no. 38, pp. 22373\[Dash]22382, Sep. 2014."
 }], "Text",
  CellChangeTimes->{{3.6132147552282257`*^9, 3.613214841134109*^9}, {
-  3.6132150181635036`*^9, 3.61321505298297*^9}}]
+  3.6132150181635036`*^9, 3.61321505298297*^9}, {3.627404832254941*^9, 
+  3.627404844310499*^9}, {3.627404879435796*^9, 3.627404880296096*^9}}]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -1707,15 +1713,12 @@ Cell[BoxData[
      RowBox[{"t", ",", "startTime", ",", "endTime"}], "}"}], ",", 
     RowBox[{"PrecisionGoal", "\[Rule]", "50"}], ",", 
     RowBox[{"MaxSteps", "\[Rule]", "Infinity"}]}], "]"}]}]], "Input"]
-}, Open  ]],
-
-Cell["References", "Section",
- CellChangeTimes->{{3.613215077168244*^9, 3.6132150831888113`*^9}}]
+}, Open  ]]
 },
-WindowSize->{800, 489},
+WindowSize->{1329, 721},
 WindowMargins->{{0, Automatic}, {Automatic, 0}},
-FrontEndVersion->"9.0 for Mac OS X x86 (32-bit, 64-bit Kernel) (January 25, \
-2013)",
+FrontEndVersion->"10.0 for Mac OS X x86 (32-bit, 64-bit Kernel) (September 9, \
+2014)",
 StyleDefinitions->"Default.nb"
 ]
 (* End of Notebook Content *)
@@ -1730,45 +1733,44 @@ CellTagsIndex->{}
 (*NotebookFileOutline
 Notebook[{
 Cell[CellGroupData[{
-Cell[579, 22, 92, 1, 80, "Section"],
-Cell[674, 25, 1312, 24, 334, "Text"]
+Cell[579, 22, 92, 1, 64, "Section"],
+Cell[674, 25, 1312, 24, 239, "Text"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[2023, 54, 138, 1, 80, "Section"],
-Cell[2164, 57, 712, 15, 220, "Text"]
+Cell[2023, 54, 138, 1, 64, "Section"],
+Cell[2164, 57, 1165, 21, 258, "Text"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[2913, 77, 27, 0, 80, "Section"],
-Cell[2943, 79, 282, 9, 38, "Text"],
-Cell[3228, 90, 830, 25, 322, "Input"],
+Cell[3366, 83, 27, 0, 64, "Section"],
+Cell[3396, 85, 282, 9, 39, "Text"],
+Cell[3681, 96, 830, 25, 322, "Input"],
 Cell[CellGroupData[{
-Cell[4083, 119, 57, 0, 44, "Subsection"],
-Cell[4143, 121, 150, 3, 30, "Text"],
-Cell[4296, 126, 386, 10, 28, "Input"],
-Cell[4685, 138, 157, 3, 28, "Input"]
+Cell[4536, 125, 57, 0, 44, "Subsection"],
+Cell[4596, 127, 150, 3, 30, "Text"],
+Cell[4749, 132, 386, 10, 28, "Input"],
+Cell[5138, 144, 157, 3, 28, "Input"]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[4891, 147, 34, 0, 80, "Section"],
-Cell[4928, 149, 417, 10, 68, "Text"],
-Cell[5348, 161, 10366, 340, 1813, "Input"]
+Cell[5344, 153, 34, 0, 64, "Section"],
+Cell[5381, 155, 417, 10, 68, "Text"],
+Cell[5801, 167, 10366, 340, 1805, "Input"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[15751, 506, 39, 0, 80, "Section"],
-Cell[15793, 508, 756, 19, 38, "Text"],
-Cell[16552, 529, 976, 30, 130, "Input"]
+Cell[16204, 512, 39, 0, 64, "Section"],
+Cell[16246, 514, 756, 19, 37, "Text"],
+Cell[17005, 535, 976, 30, 130, "Input"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[17565, 564, 37, 0, 80, "Section"],
-Cell[17605, 566, 396, 12, 49, "Text"],
-Cell[18004, 580, 2061, 57, 328, "Input"]
+Cell[18018, 570, 37, 0, 64, "Section"],
+Cell[18058, 572, 396, 12, 49, "Text"],
+Cell[18457, 586, 2061, 57, 349, "Input"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[20102, 642, 33, 0, 80, "Section"],
-Cell[20138, 644, 461, 17, 51, "Text"],
-Cell[20602, 663, 44340, 1045, 1458, "Input"]
-}, Open  ]],
-Cell[64957, 1711, 97, 1, 80, "Section"]
+Cell[20555, 648, 33, 0, 64, "Section"],
+Cell[20591, 650, 461, 17, 31, "Text"],
+Cell[21055, 669, 44340, 1045, 1245, "Input"]
+}, Open  ]]
 }
 ]
 *)
