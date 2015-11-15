@@ -7,4 +7,4 @@ Please see the paper and supplement for details on the simulation. Feel free to 
 
 Regards,
 Nicholas
-schnic@seas.upenn.edu
+schneider.nicholasm@gmail.com
