@@ -1,0 +1,1925 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 9.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       157,          7]
+NotebookDataLength[     72570,       1916]
+NotebookOptionsPosition[     71184,       1864]
+NotebookOutlinePosition[     71540,       1880]
+CellTagsIndexPosition[     71497,       1877]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["License", "Section"],
+
+Cell["\<\
+The MIT License (MIT)
+
+Copyright (c) 2015 Nicholas M. Schneider
+
+Permission is hereby granted, free of charge, to any person obtaining a copy \
+of this software and associated documentation files (the \
+\[OpenCurlyDoubleQuote]Software\[CloseCurlyDoubleQuote]), to deal in the \
+Software without restriction, including without limitation the rights to use, \
+copy, modify, merge, publish, distribute, sublicense, and/or sell copies of \
+the Software, and to permit persons to whom the Software is furnished to do \
+so, subject to the following conditions: The above copyright notice and this \
+permission notice shall be included in all copies or substantial portions of \
+the Software.
+
+THE SOFTWARE IS PROVIDED \[OpenCurlyDoubleQuote]AS \
+IS\[CloseCurlyDoubleQuote], WITHOUT WARRANTY OF ANY KIND, EXPRESS OR  \
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, \
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\
+\[LineSeparator]AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES \
+OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, \
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER \
+DEALINGS IN THE SOFTWARE.\
+\>", "Text"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[StyleBox["Overview and Contact", "Section"]], "Section"],
+
+Cell[TextData[{
+ "This notebook contains the implementation of a Kinetic Water Radiolysis \
+Model outlined in Park ",
+ StyleBox["et. al.",
+  FontSlant->"Italic"],
+ " [1]. Please see the paper for details: ",
+ "http://pubs.acs.org/doi/abs/10.1021/acs.nanolett.5b01677",
+ "\n\nContact:\nEmail: Schneider.NicholasM@gmail.com\nWebsite: \
+http://NMSchneider.com\nYouTube Channel: \
+https://www.youtube.com/user/NicholasMSchneider\nTwitter: \
+https://twitter.com/NMSchneider \nFacebook: \
+http://facebook.com/Schneider.NicholasM\nLinkedIn: \
+http://www.linkedin.com/in/nmschneider/\nGoogle+: \
+https://plus.google.com/+NicholasSchneiderPennRIT/\n\n[1]\tControl of \
+Electron Beam-Induced Au Nanocrystal Growth Kinetics through Solution \
+Chemistry\nJeung Hun Park, Nicholas M. Schneider, Joseph M. Grogan, Mark C. \
+Reuter, Haim H. Bau, Suneel Kodambaka, and Frances M. Ross\nNano Letters 2015 \
+15 (8), 5314-5320\nDOI: 10.1021/acs.nanolett.5b01677"
+}], "Text"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["G-Values", "Section"],
+
+Cell[TextData[{
+ "Electron Radiation G-Values taken from Hill and Smith [2] for 300 keV. \
+G-Values have units of ",
+ Cell[BoxData[
+  FormBox[
+   FractionBox["Molecules", 
+    RowBox[{"100", " ", "eV"}]], TraditionalForm]]],
+ "."
+}], "Text"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"gEm", " ", "=", 
+   FractionBox[
+    RowBox[{" ", "3.47"}], "100"]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"gH", "=", 
+   FractionBox["1.00", "100"]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"gH2", " ", "=", " ", 
+   FractionBox["0.17", "100"]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"gOH", " ", "=", 
+   FractionBox["3.63", "100"]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"gH202", "=", 
+   FractionBox["0.47", "100"]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"gHO2", "=", 
+   FractionBox["0.08", "100"]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"gHp", " ", "=", " ", 
+   FractionBox["4.42", "100"]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"gOHm", "=", 
+   FractionBox["0.95", "100"]}], ";"}]}], "Input"],
+
+Cell[CellGroupData[{
+
+Cell["Make Sure Your G-Values are Balance", "Subsection"],
+
+Cell["\<\
+Perform an atomic balance on the destruction of Water for Oxygen and Hydrogen \
+separately, and then make sure they are equal.\
+\>", "Text"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"0.5", " ", 
+   RowBox[{"(", 
+    RowBox[{"gH", "+", 
+     RowBox[{"2", " ", "gH2"}], " ", "+", "gOH", "+", 
+     RowBox[{"2", " ", "gH202"}], "+", "gHO2", "+", "gHp", "+", "gOHm"}], 
+    ")"}]}], "==", 
+  RowBox[{"gOH", " ", "+", " ", 
+   RowBox[{"2", " ", "gH202"}], " ", "+", " ", 
+   RowBox[{"2", " ", "gHO2"}], " ", "+", " ", "gOHm"}]}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{"gOH", " ", "+", " ", 
+  RowBox[{"2", " ", "gH202"}], " ", "+", " ", 
+  RowBox[{"2", " ", "gHO2"}], " ", "+", " ", "gOHm"}]], "Input"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Reactions Rates", "Section"],
+
+Cell[TextData[{
+ "Here are the reactions rates used in Schneider ",
+ StyleBox["et. al.",
+  FontSlant->"Italic"],
+ " [1]. The variable for water, ",
+ StyleBox["H2O[t]",
+  FontWeight->"Bold"],
+ ", is divided out using the assumption that water acts as a solvent which \
+has a much larger concentration than any of the radiolysis products.\n"
+}], "Text"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"K2", "=", 
+   SuperscriptBox["10", 
+    RowBox[{"-", "13.999"}]]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K3", "=", 
+   SuperscriptBox["10", 
+    RowBox[{"-", "11.65"}]]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K4", "=", 
+   SuperscriptBox["10", 
+    RowBox[{"-", "11.9"}]]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K5", "=", 
+   SuperscriptBox["10", 
+    RowBox[{"-", "4.57"}]]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K6", "=", 
+   SuperscriptBox["10", 
+    RowBox[{"-", "9.77"}]]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K7", "=", 
+   RowBox[{"1.4", " ", 
+    SuperscriptBox["10", "11"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K8", "=", 
+   FractionBox[
+    RowBox[{"K7", "*", "K2"}], 
+    RowBox[{"H2O", "[", "t", "]"}]]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K9", "=", 
+   RowBox[{"K10", "*", "K3"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K10", "=", 
+   RowBox[{"5.0", " ", 
+    SuperscriptBox["10", "10"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K11", "=", 
+   RowBox[{"1.3", " ", 
+    SuperscriptBox["10", "10"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K12", "=", 
+   FractionBox[
+    RowBox[{"K11", "*", "K2"}], 
+    RowBox[{"K3", "*", 
+     RowBox[{"H2O", "[", "t", "]"}]}]]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K13", "=", 
+   RowBox[{"1.9", " ", 
+    SuperscriptBox["10", "1"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K14", "=", 
+   RowBox[{"2.2", " ", 
+    SuperscriptBox["10", "7"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K15", "=", 
+   RowBox[{"K16", "*", "K6"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K16", "=", 
+   RowBox[{"2.3", " ", 
+    SuperscriptBox["10", "10"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K17", "=", 
+   RowBox[{"1.3", " ", 
+    SuperscriptBox["10", "10"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K18", "=", 
+   FractionBox[
+    RowBox[{"K17", "*", "K2"}], 
+    RowBox[{"K4", "*", 
+     RowBox[{"H2O", "[", "t", "]"}]}]]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K19", "=", 
+   RowBox[{"K20", "*", "K4"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K20", "=", 
+   RowBox[{"1.0", " ", 
+    SuperscriptBox["10", "11"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K21", "=", 
+   RowBox[{"K22", "*", "K5"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K22", "=", 
+   RowBox[{"5.0", " ", 
+    SuperscriptBox["10", "10"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K23", "=", 
+   RowBox[{"5.0", " ", 
+    SuperscriptBox["10", "10"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K24", "=", 
+   FractionBox[
+    RowBox[{"K23", "*", "K2"}], 
+    RowBox[{"K5", "*", 
+     RowBox[{"H2O", "[", "t", "]"}]}]]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K25", "=", 
+   RowBox[{"3.0", " ", 
+    SuperscriptBox["10", "10"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K26", "=", 
+   RowBox[{"1.1", " ", 
+    SuperscriptBox["10", "10"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K27", "=", 
+   FractionBox[
+    RowBox[{"1.3", " ", 
+     SuperscriptBox["10", "10"]}], 
+    RowBox[{"H2O", "[", "t", "]"}]]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K28", "=", 
+   RowBox[{"2.0", " ", 
+    SuperscriptBox["10", "10"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K29", "=", 
+   RowBox[{"1.9", " ", 
+    SuperscriptBox["10", "10"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K30", "=", 
+   FractionBox[
+    RowBox[{"5.5", " ", 
+     SuperscriptBox["10", "9"]}], 
+    SuperscriptBox[
+     RowBox[{"H2O", "[", "t", "]"}], "2"]]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K31", "=", 
+   FractionBox[
+    RowBox[{"2.5", " ", 
+     SuperscriptBox["10", "10"]}], 
+    RowBox[{"H2O", "[", "t", "]"}]]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K32", "=", 
+   RowBox[{"3.5", " ", 
+    SuperscriptBox["10", "9"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K33", "=", 
+   FractionBox[
+    RowBox[{"2.2", " ", 
+     SuperscriptBox["10", "10"]}], 
+    RowBox[{"H2O", "[", "t", "]"}]]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K34", "=", 
+   FractionBox[
+    RowBox[{"1.6", " ", 
+     SuperscriptBox["10", "10"]}], 
+    RowBox[{"H2O", "[", "t", "]"}]]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K35", "=", 
+   RowBox[{"3.6", " ", 
+    SuperscriptBox["10", "10"]}]}], " ", ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K36", "=", 
+   RowBox[{"1.1", " ", 
+    SuperscriptBox["10", "1"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K37", "=", 
+   RowBox[{"1.0", " ", 
+    SuperscriptBox["10", "10"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K38", "=", 
+   RowBox[{"9.0", " ", 
+    SuperscriptBox["10", "7"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K39", "=", 
+   RowBox[{"1.0", " ", 
+    SuperscriptBox["10", "10"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K40", "=", 
+   RowBox[{"7.8", " ", 
+    SuperscriptBox["10", "9"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K41", "=", 
+   RowBox[{"7.0", " ", 
+    SuperscriptBox["10", "9"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K42", "=", 
+   RowBox[{"9.0", " ", 
+    SuperscriptBox["10", "7"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K43", "=", 
+   RowBox[{"2.1", " ", 
+    SuperscriptBox["10", "10"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K44", "=", 
+   RowBox[{"1.8", " ", 
+    SuperscriptBox["10", "10"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K45", "=", 
+   RowBox[{"1.8", " ", 
+    SuperscriptBox["10", "10"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K46", "=", 
+   RowBox[{"3.8", " ", 
+    SuperscriptBox["10", "10"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K47", "=", 
+   RowBox[{"3.6", " ", 
+    SuperscriptBox["10", "9"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K48", "=", 
+   RowBox[{"6.0", " ", 
+    SuperscriptBox["10", "9"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K49", "=", 
+   RowBox[{"8.2", " ", 
+    SuperscriptBox["10", "9"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K50", "=", 
+   RowBox[{"4.3", " ", 
+    SuperscriptBox["10", "7"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K51", "=", 
+   RowBox[{"2.7", " ", 
+    SuperscriptBox["10", "7"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K52", "=", 
+   RowBox[{"2.5", " ", 
+    SuperscriptBox["10", "10"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K53", "=", 
+   RowBox[{"7.5", " ", 
+    SuperscriptBox["10", "9"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K54", "=", 
+   RowBox[{"2.6", " ", 
+    SuperscriptBox["10", "9"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K55", "=", 
+   RowBox[{"6.0", " ", 
+    SuperscriptBox["10", "9"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K56", "=", 
+   RowBox[{"1.1", " ", 
+    SuperscriptBox["10", "8"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K57", "=", 
+   RowBox[{"8.0", " ", 
+    SuperscriptBox["10", "7"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K58", "=", 
+   RowBox[{"7.0", " ", 
+    SuperscriptBox["10", "5"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K59", "=", 
+   RowBox[{"6.0", " ", 
+    SuperscriptBox["10", "9"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K60", "=", 
+   RowBox[{"5.0", " ", 
+    SuperscriptBox["10", 
+     RowBox[{"-", "1"}]]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K61", "=", 
+   RowBox[{"5.0", " ", 
+    SuperscriptBox["10", 
+     RowBox[{"-", "1"}]]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K62", "=", 
+   RowBox[{"6.0", " ", 
+    SuperscriptBox["10", "9"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K63", "=", 
+   RowBox[{"5.0", " ", 
+    SuperscriptBox["10", "8"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K64", "=", 
+   FractionBox[
+    RowBox[{"1.0", " ", 
+     SuperscriptBox["10", "2"]}], 
+    SuperscriptBox[
+     RowBox[{"H2O", "[", "t", "]"}], "2"]]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K65", "=", 
+   FractionBox[
+    RowBox[{"6.0", " ", 
+     SuperscriptBox["10", "8"]}], 
+    RowBox[{"H2O", "[", "t", "]"}]]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K66", "=", 
+   RowBox[{"1.3", " ", 
+    SuperscriptBox["10", 
+     RowBox[{"-", "1"}]]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K67", "=", 
+   RowBox[{"1.3", " ", 
+    SuperscriptBox["10", 
+     RowBox[{"-", "1"}]]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K68", "=", 
+   FractionBox[
+    RowBox[{"1.0", " ", 
+     SuperscriptBox["10", "4"]}], 
+    RowBox[{"H2O", "[", "t", "]"}]]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K69", "=", 
+   RowBox[{"1.5", " ", 
+    SuperscriptBox["10", "9"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K70", "=", 
+   FractionBox[
+    RowBox[{"1.0", " ", 
+     SuperscriptBox["10", "9"]}], 
+    RowBox[{"H2O", "[", "t", "]"}]]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K71", "=", 
+   RowBox[{"3.6", " ", 
+    SuperscriptBox["10", "9"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K72", "=", 
+   RowBox[{"8.0", " ", 
+    SuperscriptBox["10", "7"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K73", "=", 
+   RowBox[{"5.0", " ", 
+    SuperscriptBox["10", "8"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K74", "=", 
+   RowBox[{"4.0", " ", 
+    SuperscriptBox["10", "8"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K75", "=", 
+   RowBox[{"7.0", " ", 
+    SuperscriptBox["10", "8"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K76", "=", 
+   RowBox[{"5.0", " ", 
+    SuperscriptBox["10", "9"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K77", "=", 
+   RowBox[{"3.3", " ", 
+    SuperscriptBox["10", "3"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K78", "=", 
+   RowBox[{"9.0", " ", 
+    SuperscriptBox["10", "10"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"K79", "=", 
+    RowBox[{"1.1", " ", 
+     SuperscriptBox["10", "5"]}]}], ";"}], "\[IndentingNewLine]", 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K106", "=", 
+   RowBox[{"4.3", " ", 
+    SuperscriptBox["10", "9"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K107", "=", 
+   RowBox[{"6.1", " ", 
+    SuperscriptBox["10", "9"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K108", "=", 
+   RowBox[{"2.1", " ", 
+    SuperscriptBox["10", "10"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K109", "=", 
+   RowBox[{"1.0", " ", 
+    SuperscriptBox["10", "10"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K110", "=", 
+   RowBox[{"2.1", " ", 
+    SuperscriptBox["10", "10"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K111", "=", 
+   RowBox[{"1.0", " ", 
+    SuperscriptBox["10", "10"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K112", "=", 
+   RowBox[{"8.0", " ", 
+    SuperscriptBox["10", "9"]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"K113", "=", 
+   RowBox[{"1.0", " ", 
+    SuperscriptBox["10", "10"]}]}], ";"}]}], "Input"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Simultion Parameters", "Section"],
+
+Cell[TextData[{
+ "Here is where we define the parameters for the simulation. Most \
+importantly, ",
+ StyleBox["dose",
+  FontWeight->"Bold"],
+ " needs to be in ",
+ Cell[BoxData[
+  RowBox[{"[", 
+   FractionBox["eV", 
+    RowBox[{
+     SuperscriptBox["m", 
+      RowBox[{"3", " "}]], "s"}]], "]"}]],
+  CellChangeTimes->{{3.59204899247421*^9, 3.592049170208126*^9}, {
+   3.5920492561327477`*^9, 3.5920493991049023`*^9}, {3.5920494402880297`*^9, 
+   3.592049452463539*^9}, {3.6034524231858253`*^9, 3.60345242326686*^9}, {
+   3.608988675808259*^9, 3.608988678399234*^9}, {3.608988864818475*^9, 
+   3.608988942669327*^9}, {3.6089890320479603`*^9, 3.6089890396463346`*^9}, {
+   3.609085290572854*^9, 3.6090852908995934`*^9}}],
+ "for units to work out."
+}], "Text"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"pH", " ", "=", " ", "7.0"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"startTime", " ", "=", " ", "0"}], " ", 
+  RowBox[{"(*", 
+   RowBox[{"[", "s", "]"}], "*)"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"endTime", " ", "=", " ", 
+   SuperscriptBox["10", "3"]}], 
+  RowBox[{"(*", 
+   RowBox[{"[", "s", "]"}], "*)"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"doseRateInGyPerSecond", " ", "=", 
+   RowBox[{"7.5", " ", 
+    SuperscriptBox["10", "7"]}]}], 
+  RowBox[{"(*", 
+   RowBox[{"[", 
+    FractionBox["Gy", "s"], "]"}], "*)"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"doseRate", "  ", "=", " ", 
+   FractionBox["doseRateInGyPerSecond", 
+    RowBox[{"1.6", " ", 
+     SuperscriptBox["10", 
+      RowBox[{"-", "22"}]]}]]}], " ", 
+  RowBox[{"(*", 
+   RowBox[{"[", 
+    FractionBox["eV", 
+     RowBox[{
+      SuperscriptBox["m", 
+       RowBox[{"3", " "}]], "s"}]], "]"}], "*)"}], ";"}]}], "Input"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Initial Conditions", "Section"],
+
+Cell[TextData[{
+ "Next we define the initial conditions for all of the species in the \
+simulation. The notebook is design to automatically calulate the H3O+ (",
+ StyleBox["Hp",
+  FontWeight->"Bold"],
+ ") ions and the OH- (",
+ StyleBox["OHm",
+  FontWeight->"Bold"],
+ ") concentrations based on the ",
+ StyleBox["pH ",
+  FontWeight->"Bold"],
+ "defined in the parameters section above."
+}], "Text"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"initialConditions", " ", "=", " ", "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"Em", "[", "0", "]"}], "\[Equal]", "0"}], " ", 
+     "\[IndentingNewLine]", ",", 
+     RowBox[{
+      RowBox[{"H", "[", "0", "]"}], "\[Equal]", "0"}], "\[IndentingNewLine]", 
+     ",", 
+     RowBox[{
+      RowBox[{"H2", "[", "0", "]"}], "\[Equal]", "0"}], "\[IndentingNewLine]",
+      ",", 
+     RowBox[{
+      RowBox[{"H2O", "[", "0", "]"}], "\[Equal]", "55.56"}], 
+     "\[IndentingNewLine]", ",", 
+     RowBox[{
+      RowBox[{"H2O2", "[", "0", "]"}], "\[Equal]", "0"}], 
+     "\[IndentingNewLine]", ",", 
+     RowBox[{
+      RowBox[{"HO2", "[", "0", "]"}], "\[Equal]", "0"}], 
+     "\[IndentingNewLine]", ",", 
+     RowBox[{
+      RowBox[{"HO2m", "[", "0", "]"}], "\[Equal]", "0"}], 
+     "\[IndentingNewLine]", ",", 
+     RowBox[{
+      RowBox[{"HO3", "[", "0", "]"}], "\[Equal]", "0"}], 
+     "\[IndentingNewLine]", ",", 
+     RowBox[{
+      RowBox[{"Hp", "[", "0", "]"}], "\[Equal]", 
+      RowBox[{"1.0", " ", 
+       SuperscriptBox["10", 
+        RowBox[{"-", "pH"}]]}]}], "\[IndentingNewLine]", ",", 
+     RowBox[{
+      RowBox[{"O2", "[", "0", "]"}], "\[Equal]", "0"}], "\[IndentingNewLine]",
+      ",", 
+     RowBox[{
+      RowBox[{"O2m", "[", "0", "]"}], "\[Equal]", "0"}], 
+     "\[IndentingNewLine]", ",", 
+     RowBox[{
+      RowBox[{"O3", "[", "0", "]"}], "\[Equal]", "0"}], "\[IndentingNewLine]",
+      ",", 
+     RowBox[{
+      RowBox[{"O3m", "[", "0", "]"}], "\[Equal]", "0"}], 
+     "\[IndentingNewLine]", ",", 
+     RowBox[{
+      RowBox[{"OH", "[", "0", "]"}], "\[Equal]", "0"}], "\[IndentingNewLine]",
+      ",", 
+     RowBox[{
+      RowBox[{"OHm", "[", "0", "]"}], "\[Equal]", 
+      FractionBox["K2", 
+       RowBox[{"Hp", "[", "0", "]"}]]}], "\[IndentingNewLine]", ",", 
+     RowBox[{
+      RowBox[{"Om", "[", "0", "]"}], "\[Equal]", "0"}], "\[IndentingNewLine]",
+      "\[IndentingNewLine]", ",", 
+     RowBox[{
+      RowBox[{"Clm", "[", "0", "]"}], "\[Equal]", 
+      RowBox[{"0", " ", 
+       SuperscriptBox["10", 
+        RowBox[{"-", "2"}]]}]}], "\[IndentingNewLine]", ",", 
+     RowBox[{
+      RowBox[{"Cl", "[", "0", "]"}], "\[Equal]", "0"}], "\[IndentingNewLine]",
+      ",", 
+     RowBox[{
+      RowBox[{"ClOHm", "[", "0", "]"}], "\[Equal]", "0"}], 
+     "\[IndentingNewLine]", ",", 
+     RowBox[{
+      RowBox[{"Cl2m", "[", "0", "]"}], "\[Equal]", "0"}]}], "}"}]}], 
+  RowBox[{"(*", 
+   RowBox[{"All", " ", "concentrations", " ", 
+    RowBox[{"in", " ", "[", "M", "]"}]}], "*)"}], ";"}]], "Input"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Implementation", "Section"],
+
+Cell[TextData[{
+ "The system is solved with ",
+ StyleBox["Mathematica\[CloseCurlyQuote]s ",
+  FontSlant->"Italic"],
+ StyleBox["NDSolve ",
+  FontWeight->"Bold"],
+ "and will return an ",
+ StyleBox["InterpolationFunction ",
+  FontWeight->"Bold"],
+ "over the time span defined for each of the species. The results are in \
+units of ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"[", 
+    StyleBox["M",
+     FontSlant->"Plain"], "]"}], TraditionalForm]]],
+ "."
+}], "Text"],
+
+Cell[BoxData[
+ RowBox[{"sol", " ", "=", 
+  RowBox[{"NDSolve", "[", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"{", "\[IndentingNewLine]", 
+       RowBox[{"(*", ",", "*)"}], 
+       RowBox[{
+        RowBox[{
+         RowBox[{
+          SuperscriptBox["Em", "\[Prime]",
+           MultilineFunction->None], "[", "t", "]"}], "\[Equal]", 
+         RowBox[{
+          RowBox[{"K15", " ", 
+           RowBox[{"H", "[", "t", "]"}]}], "-", 
+          RowBox[{"K13", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"H2O", "[", "t", "]"}]}], "-", 
+          RowBox[{"K31", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"H2O", "[", "t", "]"}]}], "-", 
+          RowBox[{"2", " ", "K30", " ", 
+           SuperscriptBox[
+            RowBox[{"Em", "[", "t", "]"}], "2"], " ", 
+           SuperscriptBox[
+            RowBox[{"H2O", "[", "t", "]"}], "2"]}], "-", 
+          RowBox[{"K26", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"H2O2", "[", "t", "]"}]}], "-", 
+          RowBox[{"K28", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"HO2", "[", "t", "]"}]}], "-", 
+          RowBox[{"K32", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"HO2m", "[", "t", "]"}]}], "-", 
+          RowBox[{"K16", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"Hp", "[", "t", "]"}]}], "-", 
+          RowBox[{"K29", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"O2", "[", "t", "]"}]}], "-", 
+          RowBox[{"K27", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"H2O", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}]}], "-", 
+          RowBox[{"K35", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"O3", "[", "t", "]"}]}], "-", 
+          RowBox[{"K34", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"H2O", "[", "t", "]"}], " ", 
+           RowBox[{"O3m", "[", "t", "]"}]}], "-", 
+          RowBox[{"K25", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "+", 
+          RowBox[{"K14", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"OHm", "[", "t", "]"}]}], "-", 
+          RowBox[{"K33", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"H2O", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], " ", "+", " ", 
+          RowBox[{"gEm", " ", "*", "doseRate", "*", 
+           RowBox[{"1", "/", 
+            RowBox[{"(", 
+             RowBox[{"6.022", " ", 
+              SuperscriptBox["10", "23"]}], ")"}]}], "*", 
+           RowBox[{"1", "/", "1000"}]}], "-", 
+          RowBox[{"K109", " ", 
+           RowBox[{"ClOHm", "[", "t", "]"}], " ", 
+           RowBox[{"Em", "[", "t", "]"}]}], "-", 
+          RowBox[{"K111", " ", 
+           RowBox[{"Cl2m", "[", "t", "]"}], 
+           RowBox[{"Em", "[", "t", "]"}]}]}]}], " ", "\[IndentingNewLine]", 
+        "\[IndentingNewLine]", ",", 
+        RowBox[{
+         RowBox[{
+          SuperscriptBox["H", "\[Prime]",
+           MultilineFunction->None], "[", "t", "]"}], "\[Equal]", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"-", "K15"}], " ", 
+           RowBox[{"H", "[", "t", "]"}]}], "-", 
+          RowBox[{"2", " ", "K40", " ", 
+           SuperscriptBox[
+            RowBox[{"H", "[", "t", "]"}], "2"]}], "+", 
+          RowBox[{"K13", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"H2O", "[", "t", "]"}]}], "-", 
+          RowBox[{"K36", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"H2O", "[", "t", "]"}]}], "-", 
+          RowBox[{"K31", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"H2O", "[", "t", "]"}]}], "-", 
+          RowBox[{"K42", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"H2O2", "[", "t", "]"}]}], "-", 
+          RowBox[{"K44", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"HO2", "[", "t", "]"}]}], "-", 
+          RowBox[{"K38", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"HO2m", "[", "t", "]"}]}], "+", 
+          RowBox[{"K16", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"Hp", "[", "t", "]"}]}], "-", 
+          RowBox[{"K43", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"O2", "[", "t", "]"}]}], "-", 
+          RowBox[{"K45", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}]}], "-", 
+          RowBox[{"K46", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"O3", "[", "t", "]"}]}], "-", 
+          RowBox[{"K39", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"O3m", "[", "t", "]"}]}], "-", 
+          RowBox[{"K41", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "+", 
+          RowBox[{"K50", " ", 
+           RowBox[{"H2", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "-", 
+          RowBox[{"K14", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"OHm", "[", "t", "]"}]}], "-", 
+          RowBox[{"K37", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "+", 
+          RowBox[{"K72", " ", 
+           RowBox[{"H2", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], " ", "+", " ", 
+          RowBox[{"gH", "*", "doseRate", "*", 
+           RowBox[{"1", "/", 
+            RowBox[{"(", 
+             RowBox[{"6.022", " ", 
+              SuperscriptBox["10", "23"]}], ")"}]}], "*", 
+           RowBox[{"1", "/", "1000"}]}], "-", 
+          RowBox[{"K112", " ", 
+           RowBox[{"Cl2m", "[", "t", "]"}], 
+           RowBox[{"H", "[", "t", "]"}]}], "-", 
+          RowBox[{"K113", " ", 
+           RowBox[{"Cl", "[", "t", "]"}], 
+           RowBox[{"H", "[", "t", "]"}]}]}]}], ",", "\[IndentingNewLine]", 
+        "\[IndentingNewLine]", 
+        RowBox[{
+         RowBox[{
+          SuperscriptBox["H2", "\[Prime]",
+           MultilineFunction->None], "[", "t", "]"}], "\[Equal]", 
+         RowBox[{
+          RowBox[{"K40", " ", 
+           SuperscriptBox[
+            RowBox[{"H", "[", "t", "]"}], "2"]}], "+", 
+          RowBox[{"K36", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"H2O", "[", "t", "]"}]}], "+", 
+          RowBox[{"K31", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"H2O", "[", "t", "]"}]}], "+", 
+          RowBox[{"K30", " ", 
+           SuperscriptBox[
+            RowBox[{"Em", "[", "t", "]"}], "2"], " ", 
+           SuperscriptBox[
+            RowBox[{"H2O", "[", "t", "]"}], "2"]}], "-", 
+          RowBox[{"K50", " ", 
+           RowBox[{"H2", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "-", 
+          RowBox[{"K72", " ", 
+           RowBox[{"H2", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "+", 
+          RowBox[{"gH2", "*", "doseRate", "*", 
+           RowBox[{"1", "/", 
+            RowBox[{"(", 
+             RowBox[{"6.022", " ", 
+              SuperscriptBox["10", "23"]}], ")"}]}], "*", 
+           RowBox[{"1", "/", "1000"}]}]}]}], "\[IndentingNewLine]", 
+        "\[IndentingNewLine]", ",", 
+        RowBox[{
+         RowBox[{
+          SuperscriptBox["H2O", "\[Prime]",
+           MultilineFunction->None], "[", "t", "]"}], "\[Equal]", 
+         RowBox[{
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"-", "K8"}], " ", 
+             RowBox[{"H2O", "[", "t", "]"}]}], "-", 
+            RowBox[{"K13", " ", 
+             RowBox[{"Em", "[", "t", "]"}], " ", 
+             RowBox[{"H2O", "[", "t", "]"}]}], "-", 
+            RowBox[{"K36", " ", 
+             RowBox[{"H", "[", "t", "]"}], " ", 
+             RowBox[{"H2O", "[", "t", "]"}]}], "-", 
+            RowBox[{"K31", " ", 
+             RowBox[{"Em", "[", "t", "]"}], " ", 
+             RowBox[{"H", "[", "t", "]"}], " ", 
+             RowBox[{"H2O", "[", "t", "]"}]}], "-", 
+            RowBox[{"2", " ", "K30", " ", 
+             SuperscriptBox[
+              RowBox[{"Em", "[", "t", "]"}], "2"], " ", 
+             SuperscriptBox[
+              RowBox[{"H2O", "[", "t", "]"}], "2"]}], "+", 
+            RowBox[{"K42", " ", 
+             RowBox[{"H", "[", "t", "]"}], " ", 
+             RowBox[{"H2O2", "[", "t", "]"}]}], "+", 
+            RowBox[{"K60", " ", 
+             RowBox[{"H2O2", "[", "t", "]"}], " ", 
+             RowBox[{"HO2", "[", "t", "]"}]}], "-", 
+            RowBox[{"K12", " ", 
+             RowBox[{"H2O", "[", "t", "]"}], " ", 
+             RowBox[{"HO2m", "[", "t", "]"}]}], "-", 
+            RowBox[{"K24", " ", 
+             RowBox[{"H2O", "[", "t", "]"}], " ", 
+             RowBox[{"O2m", "[", "t", "]"}]}], "-", 
+            RowBox[{"K27", " ", 
+             RowBox[{"Em", "[", "t", "]"}], " ", 
+             RowBox[{"H2O", "[", "t", "]"}], " ", 
+             RowBox[{"O2m", "[", "t", "]"}]}], "-", 
+            RowBox[{"2", " ", "K64", " ", 
+             SuperscriptBox[
+              RowBox[{"H2O", "[", "t", "]"}], "2"], " ", 
+             SuperscriptBox[
+              RowBox[{"O2m", "[", "t", "]"}], "2"]}], "-", 
+            RowBox[{"K34", " ", 
+             RowBox[{"Em", "[", "t", "]"}], " ", 
+             RowBox[{"H2O", "[", "t", "]"}], " ", 
+             RowBox[{"O3m", "[", "t", "]"}]}], "-", 
+            RowBox[{"K68", " ", 
+             RowBox[{"H2O", "[", "t", "]"}], " ", 
+             RowBox[{"O2m", "[", "t", "]"}], " ", 
+             RowBox[{"O3m", "[", "t", "]"}]}], "+", 
+            RowBox[{"K41", " ", 
+             RowBox[{"H", "[", "t", "]"}], " ", 
+             RowBox[{"OH", "[", "t", "]"}]}], "+", 
+            RowBox[{"K50", " ", 
+             RowBox[{"H2", "[", "t", "]"}], " ", 
+             RowBox[{"OH", "[", "t", "]"}]}], "+", 
+            RowBox[{"K51", " ", 
+             RowBox[{"H2O2", "[", "t", "]"}], " ", 
+             RowBox[{"OH", "[", "t", "]"}]}], "+", 
+            RowBox[{"K48", " ", 
+             RowBox[{"HO2", "[", "t", "]"}], " ", 
+             RowBox[{"OH", "[", "t", "]"}]}], "+", 
+            RowBox[{"K14", " ", 
+             RowBox[{"H", "[", "t", "]"}], " ", 
+             RowBox[{"OHm", "[", "t", "]"}]}], "+", 
+            RowBox[{"K11", " ", 
+             RowBox[{"H2O2", "[", "t", "]"}], " ", 
+             RowBox[{"OHm", "[", "t", "]"}]}], "+", 
+            RowBox[{"K23", " ", 
+             RowBox[{"HO2", "[", "t", "]"}], " ", 
+             RowBox[{"OHm", "[", "t", "]"}]}], "+", 
+            RowBox[{"K7", " ", 
+             RowBox[{"Hp", "[", "t", "]"}], " ", 
+             RowBox[{"OHm", "[", "t", "]"}]}], "+", 
+            RowBox[{"K17", " ", 
+             RowBox[{"OH", "[", "t", "]"}], " ", 
+             RowBox[{"OHm", "[", "t", "]"}]}], "-", 
+            RowBox[{"K18", " ", 
+             RowBox[{"H2O", "[", "t", "]"}], " ", 
+             RowBox[{"Om", "[", "t", "]"}]}], "-", 
+            RowBox[{"K33", " ", 
+             RowBox[{"Em", "[", "t", "]"}], " ", 
+             RowBox[{"H2O", "[", "t", "]"}], " ", 
+             RowBox[{"Om", "[", "t", "]"}]}], "+", 
+            RowBox[{"K73", " ", 
+             RowBox[{"H2O2", "[", "t", "]"}], " ", 
+             RowBox[{"Om", "[", "t", "]"}]}], "-", 
+            RowBox[{"K65", " ", 
+             RowBox[{"H2O", "[", "t", "]"}], " ", 
+             RowBox[{"O2m", "[", "t", "]"}], " ", 
+             RowBox[{"Om", "[", "t", "]"}]}], "-", 
+            RowBox[{"K70", " ", 
+             RowBox[{"H2O", "[", "t", "]"}], " ", 
+             SuperscriptBox[
+              RowBox[{"Om", "[", "t", "]"}], "2"]}], " ", "-", 
+            RowBox[{
+             RowBox[{"(", 
+              RowBox[{"gOH", " ", "+", " ", 
+               RowBox[{"2", " ", "gH202"}], " ", "+", " ", 
+               RowBox[{"2", " ", "gHO2"}], " ", "+", " ", "gOHm"}], ")"}], 
+             "*", "doseRate", "*", 
+             RowBox[{"1", "/", 
+              RowBox[{"(", 
+               RowBox[{"6.022", " ", 
+                SuperscriptBox["10", "23"]}], ")"}]}], "*", 
+             RowBox[{"1", "/", "1000"}]}], "+", 
+            RowBox[{"K108", " ", 
+             RowBox[{"ClOHm", "[", "t", "]"}], " ", 
+             RowBox[{"Hp", "[", "t", "]"}]}], "+", 
+            RowBox[{"K111", " ", 
+             RowBox[{"Cl2m", "[", "t", "]"}], 
+             RowBox[{"Em", "[", "t", "]"}]}]}], ")"}], "*", "0"}]}], ",", 
+        "\[IndentingNewLine]", "\[IndentingNewLine]", 
+        RowBox[{
+         RowBox[{
+          SuperscriptBox["H2O2", "\[Prime]",
+           MultilineFunction->None], "[", "t", "]"}], "\[Equal]", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"-", "K9"}], " ", 
+           RowBox[{"H2O2", "[", "t", "]"}]}], "-", 
+          RowBox[{"K26", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"H2O2", "[", "t", "]"}]}], "-", 
+          RowBox[{"K42", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"H2O2", "[", "t", "]"}]}], "+", 
+          RowBox[{"K44", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"HO2", "[", "t", "]"}]}], "-", 
+          RowBox[{"K60", " ", 
+           RowBox[{"H2O2", "[", "t", "]"}], " ", 
+           RowBox[{"HO2", "[", "t", "]"}]}], "+", 
+          RowBox[{"K58", " ", 
+           SuperscriptBox[
+            RowBox[{"HO2", "[", "t", "]"}], "2"]}], "+", 
+          RowBox[{"K12", " ", 
+           RowBox[{"H2O", "[", "t", "]"}], " ", 
+           RowBox[{"HO2m", "[", "t", "]"}]}], "+", 
+          RowBox[{
+           RowBox[{"HO2m", "[", "t", "]"}], " ", 
+           RowBox[{"Hp", "[", "t", "]"}]}], "+", 
+          RowBox[{"K10", " ", 
+           RowBox[{"HO2m", "[", "t", "]"}], " ", 
+           RowBox[{"Hp", "[", "t", "]"}]}], "-", 
+          RowBox[{"K66", " ", 
+           RowBox[{"H2O2", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}]}], "+", 
+          RowBox[{"K64", " ", 
+           SuperscriptBox[
+            RowBox[{"H2O", "[", "t", "]"}], "2"], " ", 
+           SuperscriptBox[
+            RowBox[{"O2m", "[", "t", "]"}], "2"]}], "-", 
+          RowBox[{"K51", " ", 
+           RowBox[{"H2O2", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "+", 
+          RowBox[{"K47", " ", 
+           SuperscriptBox[
+            RowBox[{"OH", "[", "t", "]"}], "2"]}], "-", 
+          RowBox[{"K11", " ", 
+           RowBox[{"H2O2", "[", "t", "]"}], " ", 
+           RowBox[{"OHm", "[", "t", "]"}]}], "-", 
+          RowBox[{"K73", " ", 
+           RowBox[{"H2O2", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "+", 
+          RowBox[{"gH202", "*", "doseRate", "*", 
+           RowBox[{"1", "/", 
+            RowBox[{"(", 
+             RowBox[{"6.022", " ", 
+              SuperscriptBox["10", "23"]}], ")"}]}], "*", 
+           RowBox[{"1", "/", "1000"}]}]}]}], ",", "\[IndentingNewLine]", 
+        "\[IndentingNewLine]", 
+        RowBox[{
+         RowBox[{
+          SuperscriptBox["HO2", "\[Prime]",
+           MultilineFunction->None], "[", "t", "]"}], "\[Equal]", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"-", "K21"}], " ", 
+           RowBox[{"HO2", "[", "t", "]"}]}], "-", 
+          RowBox[{"K28", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"HO2", "[", "t", "]"}]}], "-", 
+          RowBox[{"K44", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"HO2", "[", "t", "]"}]}], "-", 
+          RowBox[{"K60", " ", 
+           RowBox[{"H2O2", "[", "t", "]"}], " ", 
+           RowBox[{"HO2", "[", "t", "]"}]}], "-", 
+          RowBox[{"2", " ", "K58", " ", 
+           SuperscriptBox[
+            RowBox[{"HO2", "[", "t", "]"}], "2"]}], "-", 
+          RowBox[{"K61", " ", 
+           RowBox[{"HO2", "[", "t", "]"}], " ", 
+           RowBox[{"HO2m", "[", "t", "]"}]}], "+", 
+          RowBox[{"K43", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"O2", "[", "t", "]"}]}], "+", 
+          RowBox[{"K24", " ", 
+           RowBox[{"H2O", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}]}], "-", 
+          RowBox[{"K57", " ", 
+           RowBox[{"HO2", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}]}], "+", 
+          RowBox[{
+           RowBox[{"Hp", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}]}], "+", 
+          RowBox[{"K22", " ", 
+           RowBox[{"Hp", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}]}], "-", 
+          RowBox[{"K63", " ", 
+           RowBox[{"HO2", "[", "t", "]"}], " ", 
+           RowBox[{"O3", "[", "t", "]"}]}], "-", 
+          RowBox[{"K62", " ", 
+           RowBox[{"HO2", "[", "t", "]"}], " ", 
+           RowBox[{"O3m", "[", "t", "]"}]}], "+", 
+          RowBox[{"K51", " ", 
+           RowBox[{"H2O2", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "-", 
+          RowBox[{"K48", " ", 
+           RowBox[{"HO2", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "+", 
+          RowBox[{"K53", " ", 
+           RowBox[{"HO2m", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "+", 
+          RowBox[{"K56", " ", 
+           RowBox[{"O3", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "-", 
+          RowBox[{"K23", " ", 
+           RowBox[{"HO2", "[", "t", "]"}], " ", 
+           RowBox[{"OHm", "[", "t", "]"}]}], "-", 
+          RowBox[{"K59", " ", 
+           RowBox[{"HO2", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "+", 
+          RowBox[{"gHO2", "*", "doseRate", "*", 
+           RowBox[{"1", "/", 
+            RowBox[{"(", 
+             RowBox[{"6.022", " ", 
+              SuperscriptBox["10", "23"]}], ")"}]}], "*", 
+           RowBox[{"1", "/", "1000"}]}]}]}], ",", "\[IndentingNewLine]", 
+        "\[IndentingNewLine]", 
+        RowBox[{
+         RowBox[{
+          SuperscriptBox["HO2m", "\[Prime]",
+           MultilineFunction->None], "[", "t", "]"}], "\[Equal]", 
+         RowBox[{
+          RowBox[{"K9", " ", 
+           RowBox[{"H2O2", "[", "t", "]"}]}], "+", 
+          RowBox[{"K28", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"HO2", "[", "t", "]"}]}], "-", 
+          RowBox[{"K32", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"HO2m", "[", "t", "]"}]}], "-", 
+          RowBox[{"K38", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"HO2m", "[", "t", "]"}]}], "-", 
+          RowBox[{"K12", " ", 
+           RowBox[{"H2O", "[", "t", "]"}], " ", 
+           RowBox[{"HO2m", "[", "t", "]"}]}], "-", 
+          RowBox[{"K61", " ", 
+           RowBox[{"HO2", "[", "t", "]"}], " ", 
+           RowBox[{"HO2m", "[", "t", "]"}]}], "-", 
+          RowBox[{"K10", " ", 
+           RowBox[{"HO2m", "[", "t", "]"}], " ", 
+           RowBox[{"Hp", "[", "t", "]"}]}], "+", 
+          RowBox[{"K45", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}]}], "+", 
+          RowBox[{"K27", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"H2O", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}]}], "+", 
+          RowBox[{"K57", " ", 
+           RowBox[{"HO2", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}]}], "-", 
+          RowBox[{"K67", " ", 
+           RowBox[{"HO2m", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}]}], "-", 
+          RowBox[{"K53", " ", 
+           RowBox[{"HO2m", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "+", 
+          RowBox[{"K11", " ", 
+           RowBox[{"H2O2", "[", "t", "]"}], " ", 
+           RowBox[{"OHm", "[", "t", "]"}]}], "-", 
+          RowBox[{"K74", " ", 
+           RowBox[{"HO2m", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "+", 
+          RowBox[{"K52", " ", 
+           RowBox[{"OH", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "+", 
+          RowBox[{"K70", " ", 
+           RowBox[{"H2O", "[", "t", "]"}], " ", 
+           SuperscriptBox[
+            RowBox[{"Om", "[", "t", "]"}], "2"]}]}]}], ",", 
+        "\[IndentingNewLine]", "\[IndentingNewLine]", 
+        RowBox[{
+         RowBox[{
+          SuperscriptBox["HO3", "\[Prime]",
+           MultilineFunction->None], "[", "t", "]"}], "\[Equal]", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"-", "K79"}], " ", 
+           RowBox[{"HO3", "[", "t", "]"}]}], "+", 
+          RowBox[{"K46", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"O3", "[", "t", "]"}]}], "+", 
+          RowBox[{"K63", " ", 
+           RowBox[{"HO2", "[", "t", "]"}], " ", 
+           RowBox[{"O3", "[", "t", "]"}]}]}]}], "\[IndentingNewLine]", 
+        "\[IndentingNewLine]", ",", 
+        RowBox[{
+         RowBox[{
+          SuperscriptBox["Hp", "\[Prime]",
+           MultilineFunction->None], "[", "t", "]"}], "\[Equal]", 
+         RowBox[{
+          RowBox[{"K15", " ", 
+           RowBox[{"H", "[", "t", "]"}]}], "+", 
+          RowBox[{"K8", " ", 
+           RowBox[{"H2O", "[", "t", "]"}]}], "+", 
+          RowBox[{"K3", " ", 
+           RowBox[{"H2O2", "[", "t", "]"}]}], "+", 
+          RowBox[{"K9", " ", 
+           RowBox[{"H2O2", "[", "t", "]"}]}], "+", 
+          RowBox[{"K21", " ", 
+           RowBox[{"HO2", "[", "t", "]"}]}], "+", 
+          RowBox[{"K5", " ", 
+           RowBox[{"HO2", "[", "t", "]"}]}], "-", 
+          RowBox[{"K16", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"Hp", "[", "t", "]"}]}], "-", 
+          RowBox[{"K10", " ", 
+           RowBox[{"HO2m", "[", "t", "]"}], " ", 
+           RowBox[{"Hp", "[", "t", "]"}]}], "-", 
+          RowBox[{"K22", " ", 
+           RowBox[{"Hp", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}]}], "-", 
+          RowBox[{"K78", " ", 
+           RowBox[{"Hp", "[", "t", "]"}], " ", 
+           RowBox[{"O3m", "[", "t", "]"}]}], "+", 
+          RowBox[{"K19", " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "+", 
+          RowBox[{"K4", " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "+", 
+          RowBox[{"K55", " ", 
+           RowBox[{"O3m", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "-", 
+          RowBox[{"K7", " ", 
+           RowBox[{"Hp", "[", "t", "]"}], " ", 
+           RowBox[{"OHm", "[", "t", "]"}]}], "-", 
+          RowBox[{"K20", " ", 
+           RowBox[{"Hp", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "+", 
+          RowBox[{"gHp", "*", "doseRate", "*", 
+           RowBox[{"1", "/", 
+            RowBox[{"(", 
+             RowBox[{"6.022", " ", 
+              SuperscriptBox["10", "23"]}], ")"}]}], "*", 
+           RowBox[{"1", "/", "1000"}]}], "-", 
+          RowBox[{"K108", " ", 
+           RowBox[{"ClOHm", "[", "t", "]"}], " ", 
+           RowBox[{"Hp", "[", "t", "]"}]}], "+", 
+          RowBox[{"K112", " ", 
+           RowBox[{"Cl2m", "[", "t", "]"}], 
+           RowBox[{"H", "[", "t", "]"}]}], "+", 
+          RowBox[{"K113", " ", 
+           RowBox[{"Cl", "[", "t", "]"}], 
+           RowBox[{"H", "[", "t", "]"}]}]}]}], ",", "\[IndentingNewLine]", 
+        "\[IndentingNewLine]", 
+        RowBox[{
+         RowBox[{
+          SuperscriptBox["O2", "\[Prime]",
+           MultilineFunction->None], "[", "t", "]"}], "\[Equal]", 
+         RowBox[{
+          RowBox[{"K60", " ", 
+           RowBox[{"H2O2", "[", "t", "]"}], " ", 
+           RowBox[{"HO2", "[", "t", "]"}]}], "+", 
+          RowBox[{"K58", " ", 
+           SuperscriptBox[
+            RowBox[{"HO2", "[", "t", "]"}], "2"]}], "+", 
+          RowBox[{"K61", " ", 
+           RowBox[{"HO2", "[", "t", "]"}], " ", 
+           RowBox[{"HO2m", "[", "t", "]"}]}], "+", 
+          RowBox[{"K79", " ", 
+           RowBox[{"HO3", "[", "t", "]"}]}], "-", 
+          RowBox[{"K29", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"O2", "[", "t", "]"}]}], "-", 
+          RowBox[{"K43", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"O2", "[", "t", "]"}]}], "+", 
+          RowBox[{"K66", " ", 
+           RowBox[{"H2O2", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}]}], "+", 
+          RowBox[{"K57", " ", 
+           RowBox[{"HO2", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}]}], "+", 
+          RowBox[{"K67", " ", 
+           RowBox[{"HO2m", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}]}], "+", 
+          RowBox[{"K64", " ", 
+           SuperscriptBox[
+            RowBox[{"H2O", "[", "t", "]"}], "2"], " ", 
+           SuperscriptBox[
+            RowBox[{"O2m", "[", "t", "]"}], "2"]}], "+", 
+          RowBox[{"K63", " ", 
+           RowBox[{"HO2", "[", "t", "]"}], " ", 
+           RowBox[{"O3", "[", "t", "]"}]}], "+", 
+          RowBox[{"K69", " ", 
+           RowBox[{"O2m", "[", "t", "]"}], " ", 
+           RowBox[{"O3", "[", "t", "]"}]}], "+", 
+          RowBox[{"K77", " ", 
+           RowBox[{"O3m", "[", "t", "]"}]}], "+", 
+          RowBox[{"K39", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"O3m", "[", "t", "]"}]}], "+", 
+          RowBox[{"K34", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"H2O", "[", "t", "]"}], " ", 
+           RowBox[{"O3m", "[", "t", "]"}]}], "+", 
+          RowBox[{"2", " ", "K62", " ", 
+           RowBox[{"HO2", "[", "t", "]"}], " ", 
+           RowBox[{"O3m", "[", "t", "]"}]}], "+", 
+          RowBox[{"K78", " ", 
+           RowBox[{"Hp", "[", "t", "]"}], " ", 
+           RowBox[{"O3m", "[", "t", "]"}]}], "+", 
+          RowBox[{"2", " ", "K68", " ", 
+           RowBox[{"H2O", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}], " ", 
+           RowBox[{"O3m", "[", "t", "]"}]}], "+", 
+          RowBox[{"K48", " ", 
+           RowBox[{"HO2", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "+", 
+          RowBox[{"K49", " ", 
+           RowBox[{"O2m", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "+", 
+          RowBox[{"K56", " ", 
+           RowBox[{"O3", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "+", 
+          RowBox[{"K59", " ", 
+           RowBox[{"HO2", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "-", 
+          RowBox[{"K71", " ", 
+           RowBox[{"O2", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "+", 
+          RowBox[{"K65", " ", 
+           RowBox[{"H2O", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "+", 
+          RowBox[{"K76", " ", 
+           RowBox[{"O3", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}]}]}], ",", "\[IndentingNewLine]", 
+        "\[IndentingNewLine]", 
+        RowBox[{
+         RowBox[{
+          SuperscriptBox["O2m", "\[Prime]",
+           MultilineFunction->None], "[", "t", "]"}], "\[Equal]", 
+         RowBox[{
+          RowBox[{"K21", " ", 
+           RowBox[{"HO2", "[", "t", "]"}]}], "+", 
+          RowBox[{"K29", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"O2", "[", "t", "]"}]}], "-", 
+          RowBox[{"K45", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}]}], "-", 
+          RowBox[{"K24", " ", 
+           RowBox[{"H2O", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}]}], "-", 
+          RowBox[{"K27", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"H2O", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}]}], "-", 
+          RowBox[{"K66", " ", 
+           RowBox[{"H2O2", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}]}], "-", 
+          RowBox[{"K57", " ", 
+           RowBox[{"HO2", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}]}], "-", 
+          RowBox[{"K67", " ", 
+           RowBox[{"HO2m", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}]}], "-", 
+          RowBox[{"K22", " ", 
+           RowBox[{"Hp", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}]}], "-", 
+          RowBox[{"2", " ", "K64", " ", 
+           SuperscriptBox[
+            RowBox[{"H2O", "[", "t", "]"}], "2"], " ", 
+           SuperscriptBox[
+            RowBox[{"O2m", "[", "t", "]"}], "2"]}], "-", 
+          RowBox[{"K69", " ", 
+           RowBox[{"O2m", "[", "t", "]"}], " ", 
+           RowBox[{"O3", "[", "t", "]"}]}], "-", 
+          RowBox[{"K68", " ", 
+           RowBox[{"H2O", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}], " ", 
+           RowBox[{"O3m", "[", "t", "]"}]}], "-", 
+          RowBox[{"K49", " ", 
+           RowBox[{"O2m", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "+", 
+          RowBox[{"2", " ", "K55", " ", 
+           RowBox[{"O3m", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "+", 
+          RowBox[{"K23", " ", 
+           RowBox[{"HO2", "[", "t", "]"}], " ", 
+           RowBox[{"OHm", "[", "t", "]"}]}], "+", 
+          RowBox[{"K73", " ", 
+           RowBox[{"H2O2", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "+", 
+          RowBox[{"K74", " ", 
+           RowBox[{"HO2m", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "-", 
+          RowBox[{"K65", " ", 
+           RowBox[{"H2O", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "+", 
+          RowBox[{"K76", " ", 
+           RowBox[{"O3", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "+", 
+          RowBox[{"2", " ", "K75", " ", 
+           RowBox[{"O3m", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}]}]}], ",", "\[IndentingNewLine]", 
+        "\[IndentingNewLine]", 
+        RowBox[{
+         RowBox[{
+          SuperscriptBox["O3", "\[Prime]",
+           MultilineFunction->None], "[", "t", "]"}], "\[Equal]", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"-", "K35"}], " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"O3", "[", "t", "]"}]}], "-", 
+          RowBox[{"K46", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"O3", "[", "t", "]"}]}], "-", 
+          RowBox[{"K63", " ", 
+           RowBox[{"HO2", "[", "t", "]"}], " ", 
+           RowBox[{"O3", "[", "t", "]"}]}], "-", 
+          RowBox[{"K69", " ", 
+           RowBox[{"O2m", "[", "t", "]"}], " ", 
+           RowBox[{"O3", "[", "t", "]"}]}], "-", 
+          RowBox[{"K56", " ", 
+           RowBox[{"O3", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "+", 
+          RowBox[{"K54", " ", 
+           RowBox[{"O3m", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "-", 
+          RowBox[{"K76", " ", 
+           RowBox[{"O3", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}]}]}], ",", "\[IndentingNewLine]", 
+        "\[IndentingNewLine]", 
+        RowBox[{
+         RowBox[{
+          SuperscriptBox["O3m", "\[Prime]",
+           MultilineFunction->None], "[", "t", "]"}], "\[Equal]", 
+         RowBox[{
+          RowBox[{"K35", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"O3", "[", "t", "]"}]}], "+", 
+          RowBox[{"K69", " ", 
+           RowBox[{"O2m", "[", "t", "]"}], " ", 
+           RowBox[{"O3", "[", "t", "]"}]}], "-", 
+          RowBox[{"K77", " ", 
+           RowBox[{"O3m", "[", "t", "]"}]}], "-", 
+          RowBox[{"K39", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"O3m", "[", "t", "]"}]}], "-", 
+          RowBox[{"K34", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"H2O", "[", "t", "]"}], " ", 
+           RowBox[{"O3m", "[", "t", "]"}]}], "-", 
+          RowBox[{"K62", " ", 
+           RowBox[{"HO2", "[", "t", "]"}], " ", 
+           RowBox[{"O3m", "[", "t", "]"}]}], "-", 
+          RowBox[{"K78", " ", 
+           RowBox[{"Hp", "[", "t", "]"}], " ", 
+           RowBox[{"O3m", "[", "t", "]"}]}], "-", 
+          RowBox[{"K68", " ", 
+           RowBox[{"H2O", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}], " ", 
+           RowBox[{"O3m", "[", "t", "]"}]}], "-", 
+          RowBox[{"K54", " ", 
+           RowBox[{"O3m", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "-", 
+          RowBox[{"K55", " ", 
+           RowBox[{"O3m", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "+", 
+          RowBox[{"K71", " ", 
+           RowBox[{"O2", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "-", 
+          RowBox[{"K75", " ", 
+           RowBox[{"O3m", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}]}]}], "\[IndentingNewLine]", 
+        "\[IndentingNewLine]", ",", 
+        RowBox[{
+         RowBox[{
+          SuperscriptBox["OH", "\[Prime]",
+           MultilineFunction->None], "[", "t", "]"}], "\[Equal]", 
+         RowBox[{
+          RowBox[{"K36", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"H2O", "[", "t", "]"}]}], "+", 
+          RowBox[{"K26", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"H2O2", "[", "t", "]"}]}], "+", 
+          RowBox[{"K42", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"H2O2", "[", "t", "]"}]}], "+", 
+          RowBox[{"K60", " ", 
+           RowBox[{"H2O2", "[", "t", "]"}], " ", 
+           RowBox[{"HO2", "[", "t", "]"}]}], "+", 
+          RowBox[{"K38", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"HO2m", "[", "t", "]"}]}], "+", 
+          RowBox[{"K61", " ", 
+           RowBox[{"HO2", "[", "t", "]"}], " ", 
+           RowBox[{"HO2m", "[", "t", "]"}]}], "+", 
+          RowBox[{"K79", " ", 
+           RowBox[{"HO3", "[", "t", "]"}]}], "+", 
+          RowBox[{"K66", " ", 
+           RowBox[{"H2O2", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}]}], "+", 
+          RowBox[{"K78", " ", 
+           RowBox[{"Hp", "[", "t", "]"}], " ", 
+           RowBox[{"O3m", "[", "t", "]"}]}], "-", 
+          RowBox[{"K19", " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "-", 
+          RowBox[{"K4", " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "-", 
+          RowBox[{"K25", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "-", 
+          RowBox[{"K41", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "-", 
+          RowBox[{"K50", " ", 
+           RowBox[{"H2", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "-", 
+          RowBox[{"K51", " ", 
+           RowBox[{"H2O2", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "-", 
+          RowBox[{"K48", " ", 
+           RowBox[{"HO2", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "-", 
+          RowBox[{"K53", " ", 
+           RowBox[{"HO2m", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "-", 
+          RowBox[{"K49", " ", 
+           RowBox[{"O2m", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "-", 
+          RowBox[{"K56", " ", 
+           RowBox[{"O3", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "-", 
+          RowBox[{"K54", " ", 
+           RowBox[{"O3m", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "-", 
+          RowBox[{"K55", " ", 
+           RowBox[{"O3m", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "-", 
+          RowBox[{"2", " ", "K47", " ", 
+           SuperscriptBox[
+            RowBox[{"OH", "[", "t", "]"}], "2"]}], "-", 
+          RowBox[{"K17", " ", 
+           RowBox[{"OH", "[", "t", "]"}], " ", 
+           RowBox[{"OHm", "[", "t", "]"}]}], "+", 
+          RowBox[{"K18", " ", 
+           RowBox[{"H2O", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "+", 
+          RowBox[{"K20", " ", 
+           RowBox[{"Hp", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "-", 
+          RowBox[{"K52", " ", 
+           RowBox[{"OH", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], " ", "+", 
+          RowBox[{"gOH", "*", "doseRate", "*", 
+           RowBox[{"1", "/", 
+            RowBox[{"(", 
+             RowBox[{"6.022", " ", 
+              SuperscriptBox["10", "23"]}], ")"}]}], "*", 
+           RowBox[{"1", "/", "1000"}]}], " ", "-", 
+          RowBox[{"K106", " ", 
+           RowBox[{"Clm", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "+", 
+          RowBox[{"K107", " ", 
+           RowBox[{"ClOHm", "[", "t", "]"}]}]}]}], "\[IndentingNewLine]", 
+        "\[IndentingNewLine]", ",", 
+        RowBox[{
+         RowBox[{
+          SuperscriptBox["OHm", "\[Prime]",
+           MultilineFunction->None], "[", "t", "]"}], "\[Equal]", 
+         RowBox[{
+          RowBox[{"K2", " ", 
+           RowBox[{"H2O", "[", "t", "]"}]}], "+", 
+          RowBox[{"K8", " ", 
+           RowBox[{"H2O", "[", "t", "]"}]}], "+", 
+          RowBox[{"K13", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"H2O", "[", "t", "]"}]}], "+", 
+          RowBox[{"K31", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"H2O", "[", "t", "]"}]}], "+", 
+          RowBox[{"2", " ", "K30", " ", 
+           SuperscriptBox[
+            RowBox[{"Em", "[", "t", "]"}], "2"], " ", 
+           SuperscriptBox[
+            RowBox[{"H2O", "[", "t", "]"}], "2"]}], "+", 
+          RowBox[{"K26", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"H2O2", "[", "t", "]"}]}], "+", 
+          RowBox[{"K32", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"HO2m", "[", "t", "]"}]}], "+", 
+          RowBox[{"K38", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"HO2m", "[", "t", "]"}]}], "+", 
+          RowBox[{"K12", " ", 
+           RowBox[{"H2O", "[", "t", "]"}], " ", 
+           RowBox[{"HO2m", "[", "t", "]"}]}], "+", 
+          RowBox[{"K61", " ", 
+           RowBox[{"HO2", "[", "t", "]"}], " ", 
+           RowBox[{"HO2m", "[", "t", "]"}]}], "+", 
+          RowBox[{"K24", " ", 
+           RowBox[{"H2O", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}]}], "+", 
+          RowBox[{"K27", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"H2O", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}]}], "+", 
+          RowBox[{"K66", " ", 
+           RowBox[{"H2O2", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}]}], "+", 
+          RowBox[{"K67", " ", 
+           RowBox[{"HO2m", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}]}], "+", 
+          RowBox[{"2", " ", "K64", " ", 
+           SuperscriptBox[
+            RowBox[{"H2O", "[", "t", "]"}], "2"], " ", 
+           SuperscriptBox[
+            RowBox[{"O2m", "[", "t", "]"}], "2"]}], "+", 
+          RowBox[{"K39", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"O3m", "[", "t", "]"}]}], "+", 
+          RowBox[{"2", " ", "K34", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"H2O", "[", "t", "]"}], " ", 
+           RowBox[{"O3m", "[", "t", "]"}]}], "+", 
+          RowBox[{"K62", " ", 
+           RowBox[{"HO2", "[", "t", "]"}], " ", 
+           RowBox[{"O3m", "[", "t", "]"}]}], "+", 
+          RowBox[{"2", " ", "K68", " ", 
+           RowBox[{"H2O", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}], " ", 
+           RowBox[{"O3m", "[", "t", "]"}]}], "+", 
+          RowBox[{"K25", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "+", 
+          RowBox[{"K53", " ", 
+           RowBox[{"HO2m", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "+", 
+          RowBox[{"K49", " ", 
+           RowBox[{"O2m", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "+", 
+          RowBox[{"K54", " ", 
+           RowBox[{"O3m", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "-", 
+          RowBox[{"K14", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"OHm", "[", "t", "]"}]}], "-", 
+          RowBox[{"K11", " ", 
+           RowBox[{"H2O2", "[", "t", "]"}], " ", 
+           RowBox[{"OHm", "[", "t", "]"}]}], "-", 
+          RowBox[{"K23", " ", 
+           RowBox[{"HO2", "[", "t", "]"}], " ", 
+           RowBox[{"OHm", "[", "t", "]"}]}], "-", 
+          RowBox[{"K7", " ", 
+           RowBox[{"Hp", "[", "t", "]"}], " ", 
+           RowBox[{"OHm", "[", "t", "]"}]}], "-", 
+          RowBox[{"K17", " ", 
+           RowBox[{"OH", "[", "t", "]"}], " ", 
+           RowBox[{"OHm", "[", "t", "]"}]}], "+", 
+          RowBox[{"K37", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "+", 
+          RowBox[{"K72", " ", 
+           RowBox[{"H2", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "+", 
+          RowBox[{"K18", " ", 
+           RowBox[{"H2O", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "+", 
+          RowBox[{"2", " ", "K33", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"H2O", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "+", 
+          RowBox[{"K59", " ", 
+           RowBox[{"HO2", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "+", 
+          RowBox[{"K74", " ", 
+           RowBox[{"HO2m", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "+", 
+          RowBox[{"2", " ", "K65", " ", 
+           RowBox[{"H2O", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "+", 
+          RowBox[{"K70", " ", 
+           RowBox[{"H2O", "[", "t", "]"}], " ", 
+           SuperscriptBox[
+            RowBox[{"Om", "[", "t", "]"}], "2"]}], "+", 
+          RowBox[{"gOHm", "*", "doseRate", "*", 
+           RowBox[{"1", "/", 
+            RowBox[{"(", 
+             RowBox[{"6.022", " ", 
+              SuperscriptBox["10", "23"]}], ")"}]}], "*", 
+           RowBox[{"1", "/", "1000"}]}], "+", 
+          RowBox[{"K109", " ", 
+           RowBox[{"ClOHm", "[", "t", "]"}], " ", 
+           RowBox[{"Em", "[", "t", "]"}]}]}]}], ",", "\[IndentingNewLine]", 
+        "\[IndentingNewLine]", 
+        RowBox[{
+         RowBox[{
+          SuperscriptBox["Om", "\[Prime]",
+           MultilineFunction->None], "[", "t", "]"}], "\[Equal]", 
+         RowBox[{
+          RowBox[{"K32", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"HO2m", "[", "t", "]"}]}], "+", 
+          RowBox[{"K67", " ", 
+           RowBox[{"HO2m", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}]}], "+", 
+          RowBox[{"K77", " ", 
+           RowBox[{"O3m", "[", "t", "]"}]}], "+", 
+          RowBox[{"K19", " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "+", 
+          RowBox[{"K4", " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "+", 
+          RowBox[{"K17", " ", 
+           RowBox[{"OH", "[", "t", "]"}], " ", 
+           RowBox[{"OHm", "[", "t", "]"}]}], "-", 
+          RowBox[{"K37", " ", 
+           RowBox[{"H", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "-", 
+          RowBox[{"K72", " ", 
+           RowBox[{"H2", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "-", 
+          RowBox[{"K18", " ", 
+           RowBox[{"H2O", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "-", 
+          RowBox[{"K33", " ", 
+           RowBox[{"Em", "[", "t", "]"}], " ", 
+           RowBox[{"H2O", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "-", 
+          RowBox[{"K73", " ", 
+           RowBox[{"H2O2", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "-", 
+          RowBox[{"K59", " ", 
+           RowBox[{"HO2", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "-", 
+          RowBox[{"K74", " ", 
+           RowBox[{"HO2m", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "-", 
+          RowBox[{
+           RowBox[{"Hp", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "-", 
+          RowBox[{"K20", " ", 
+           RowBox[{"Hp", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "-", 
+          RowBox[{"K71", " ", 
+           RowBox[{"O2", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "-", 
+          RowBox[{"K65", " ", 
+           RowBox[{"H2O", "[", "t", "]"}], " ", 
+           RowBox[{"O2m", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "-", 
+          RowBox[{"K76", " ", 
+           RowBox[{"O3", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "-", 
+          RowBox[{"K75", " ", 
+           RowBox[{"O3m", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "-", 
+          RowBox[{"K52", " ", 
+           RowBox[{"OH", "[", "t", "]"}], " ", 
+           RowBox[{"Om", "[", "t", "]"}]}], "-", 
+          RowBox[{"2", " ", "K70", " ", 
+           RowBox[{"H2O", "[", "t", "]"}], " ", 
+           SuperscriptBox[
+            RowBox[{"Om", "[", "t", "]"}], "2"]}]}]}], "\[IndentingNewLine]", 
+        "\[IndentingNewLine]", ",", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Clm", "'"}], "[", "t", "]"}], "\[Equal]", " ", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"-", "K106"}], " ", 
+           RowBox[{"Clm", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "+", 
+          RowBox[{"K107", " ", 
+           RowBox[{"ClOHm", "[", "t", "]"}]}], "+", 
+          RowBox[{"K109", " ", 
+           RowBox[{"ClOHm", "[", "t", "]"}], " ", 
+           RowBox[{"Em", "[", "t", "]"}]}], "-", 
+          RowBox[{"K110", " ", 
+           RowBox[{"Cl", "[", "t", "]"}], 
+           RowBox[{"Clm", "[", "t", "]"}]}], "+", 
+          RowBox[{"2", "K111", " ", 
+           RowBox[{"Cl2m", "[", "t", "]"}], 
+           RowBox[{"Em", "[", "t", "]"}]}], "+", 
+          RowBox[{"2", " ", "K112", " ", 
+           RowBox[{"Cl2m", "[", "t", "]"}], 
+           RowBox[{"H", "[", "t", "]"}]}], "+", 
+          RowBox[{"K113", " ", 
+           RowBox[{"Cl", "[", "t", "]"}], 
+           RowBox[{"H", "[", "t", "]"}]}]}]}], "\[IndentingNewLine]", ",", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"ClOHm", "'"}], "[", "t", "]"}], "==", 
+         RowBox[{
+          RowBox[{"K106", " ", 
+           RowBox[{"Clm", "[", "t", "]"}], " ", 
+           RowBox[{"OH", "[", "t", "]"}]}], "-", 
+          RowBox[{"K107", " ", 
+           RowBox[{"ClOHm", "[", "t", "]"}]}], "-", 
+          RowBox[{"K108", " ", 
+           RowBox[{"ClOHm", "[", "t", "]"}], " ", 
+           RowBox[{"Hp", "[", "t", "]"}]}], "-", 
+          RowBox[{"K109", " ", 
+           RowBox[{"ClOHm", "[", "t", "]"}], " ", 
+           RowBox[{"Em", "[", "t", "]"}]}]}]}], "\[IndentingNewLine]", ",", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Cl", "'"}], "[", "t", "]"}], "==", 
+         RowBox[{
+          RowBox[{"K108", " ", 
+           RowBox[{"ClOHm", "[", "t", "]"}], " ", 
+           RowBox[{"Hp", "[", "t", "]"}]}], "-", 
+          RowBox[{"K110", " ", 
+           RowBox[{"Cl", "[", "t", "]"}], 
+           RowBox[{"Clm", "[", "t", "]"}]}], "-", 
+          RowBox[{"K113", " ", 
+           RowBox[{"Cl", "[", "t", "]"}], 
+           RowBox[{"H", "[", "t", "]"}]}]}]}], "\[IndentingNewLine]", ",", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Cl2m", "'"}], "[", "t", "]"}], "==", 
+         RowBox[{
+          RowBox[{"K110", " ", 
+           RowBox[{"Cl", "[", "t", "]"}], 
+           RowBox[{"Clm", "[", "t", "]"}]}], "-", 
+          RowBox[{"K111", " ", 
+           RowBox[{"Cl2m", "[", "t", "]"}], 
+           RowBox[{"Em", "[", "t", "]"}]}], "-", 
+          RowBox[{"K112", " ", 
+           RowBox[{"Cl2m", "[", "t", "]"}], 
+           RowBox[{"H", "[", "t", "]"}]}]}]}]}], "\[IndentingNewLine]", 
+       "\[IndentingNewLine]", "}"}], ",", "\[IndentingNewLine]", 
+      "\[IndentingNewLine]", "initialConditions"}], "}"}], ",", 
+    "\[IndentingNewLine]", "\[IndentingNewLine]", 
+    RowBox[{"{", 
+     RowBox[{
+     "Em", ",", "H", ",", "H2", ",", "H2O", ",", "H2O2", ",", "HO2", ",", 
+      "HO2m", ",", "HO3", ",", "Hp", ",", "O2", ",", "O2m", ",", "O3", ",", 
+      "O3m", ",", "OH", ",", "OHm", ",", "Om", ",", "Clm", ",", "ClOHm", ",", 
+      "Cl", ",", "Cl2m"}], "}"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"t", ",", "startTime", ",", "endTime"}], "}"}], ",", 
+    RowBox[{"AccuracyGoal", "\[Rule]", "20"}], ",", 
+    RowBox[{"PrecisionGoal", "\[Rule]", "10"}], ",", 
+    RowBox[{"MaxSteps", "\[Rule]", "Infinity"}]}], "]"}]}]], "Input"]
+}, Open  ]]
+},
+WindowSize->{1316, 787},
+WindowMargins->{{0, Automatic}, {Automatic, 0}},
+FrontEndVersion->"10.0 for Mac OS X x86 (32-bit, 64-bit Kernel) (December 4, \
+2014)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[579, 22, 26, 0, 64, "Section"],
+Cell[608, 24, 1246, 23, 239, "Text"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[1891, 52, 70, 0, 64, "Section"],
+Cell[1964, 54, 955, 18, 315, "Text"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[2956, 77, 27, 0, 64, "Section"],
+Cell[2986, 79, 241, 8, 39, "Text"],
+Cell[3230, 89, 830, 25, 322, "Input"],
+Cell[CellGroupData[{
+Cell[4085, 118, 57, 0, 44, "Subsection"],
+Cell[4145, 120, 150, 3, 30, "Text"],
+Cell[4298, 125, 386, 10, 28, "Input"],
+Cell[4687, 137, 157, 3, 28, "Input"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[4893, 146, 34, 0, 64, "Section"],
+Cell[4930, 148, 351, 9, 68, "Text"],
+Cell[5284, 159, 11396, 373, 1993, "Input"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[16717, 537, 39, 0, 64, "Section"],
+Cell[16759, 539, 756, 19, 37, "Text"],
+Cell[17518, 560, 976, 30, 130, "Input"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[18531, 595, 37, 0, 64, "Section"],
+Cell[18571, 597, 396, 12, 49, "Text"],
+Cell[18970, 611, 2585, 71, 436, "Input"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[21592, 687, 33, 0, 64, "Section"],
+Cell[21628, 689, 461, 17, 31, "Text"],
+Cell[22092, 708, 49076, 1153, 1436, "Input"]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
